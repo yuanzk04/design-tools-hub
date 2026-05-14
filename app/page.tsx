@@ -109,8 +109,20 @@ export default function DesignToolsHub() {
         </div>
       </section>
 
-      <footer className="max-w-6xl mx-auto mt-16 border-t border-zinc-900 pt-8 text-zinc-600 text-sm">
-        Built for designers, creators & midnight deadline survivors.
+      <footer className="max-w-6xl mx-auto mt-16 border-t border-zinc-900 pt-8">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-zinc-600 text-sm">
+            Built for designers, creators & midnight deadline survivors.
+          </div>
+          <div className="text-zinc-500 text-sm">
+            <span className="text-zinc-400 font-medium">zky</span>
+          </div>
+        </div>
+        <div className="mt-6 text-center text-zinc-700 text-xs border-t border-zinc-900/50 pt-6">
+          <span>© 2026 Design Tools Hub · 由 </span>
+          <span className="text-zinc-500">zky</span>
+          <span> 整理推荐</span>
+        </div>
       </footer>
     </div>
   )
