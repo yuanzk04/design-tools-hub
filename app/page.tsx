@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState, useEffect, useCallback } from 'react'
+import Head from 'next/head'
 
 const tools = [
   // AI 设计
@@ -158,226 +159,261 @@ export default function DesignToolsHub() {
   const dateStr = `${today.getMonth() + 1}月${today.getDate()}日`
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 px-6 py-10">
+    <>
+      <Head>
+        {/* 基础 SEO */}
+        <title>Design Tools Hub | 设计师的数字工具箱 - AI设计、配色、字体、UI灵感资源导航</title>
+        <meta name="description" content="收录 60+ 款精选设计工具，涵盖 AI 设计、UI 设计、3D 设计、配色工具、字体资源、UI 灵感、无版权图片、图标资源和效率工具。帮设计师快速找到真正好用的工具。" />
+        <meta name="keywords" content="设计工具,AI设计,UI设计,配色工具,字体资源,UI灵感,无版权图片,图标资源,效率工具,Figma,Midjourney,设计师导航" />
+        <meta name="author" content="zky" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-      {/* Hero */}
-      <section className="max-w-6xl mx-auto mb-14">
-        <div className="inline-flex items-center rounded-full border border-zinc-800 px-4 py-1 text-sm text-zinc-400 mb-6">
-          Design Tools Hub · 持续更新中
-        </div>
-        <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-tight mb-6">
-          设计师的
-          <span className="text-zinc-400">数字工具箱</span>
-        </h1>
-        <p className="max-w-2xl text-zinc-400 text-lg leading-8">
-          精选 AI 设计、配色、字体、灵感、素材与效率工具。
-          帮你从互联网工具垃圾山里，快速找到真正顺手的那一把。
-        </p>
-        <div className="mt-8 flex gap-4 flex-wrap items-center">
-          <div className="text-sm text-zinc-500">
-            共收录 <span className="text-zinc-300 font-bold">{tools.length}</span> 个工具
+        {/* 搜索引擎控制 */}
+        <meta name="robots" content="index, follow" />
+        <meta name="googlebot" content="index, follow" />
+
+        {/* Open Graph（社交媒体分享） */}
+        <meta property="og:title" content="Design Tools Hub | 设计师的数字工具箱" />
+        <meta property="og:description" content="精选 60+ 款设计工具，每日推荐 AI 设计、配色、字体、灵感网站，帮设计师提高工作效率。" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://design-tools-hub.netlify.app" />
+        <meta property="og:image" content="https://design-tools-hub.netlify.app/og-image.png" />
+        <meta property="og:site_name" content="Design Tools Hub" />
+        <meta property="og:locale" content="zh_CN" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Design Tools Hub | 设计师的数字工具箱" />
+        <meta name="twitter:description" content="精选 60+ 款设计工具，每日推荐 AI 设计、配色、字体、灵感网站。" />
+
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://design-tools-hub.netlify.app" />
+
+        {/* 其他 SEO 优化 */}
+        <meta name="theme-color" content="#18181B" />
+        <html lang="zh-CN" />
+      </Head>
+
+      <div className="min-h-screen bg-zinc-950 text-zinc-100 px-6 py-10">
+        {/* Hero */}
+        <section className="max-w-6xl mx-auto mb-14">
+          <div className="inline-flex items-center rounded-full border border-zinc-800 px-4 py-1 text-sm text-zinc-400 mb-6">
+            Design Tools Hub · 持续更新中
           </div>
-          {favorites.length > 0 && (
-            <button
-              onClick={() => setShowFavOnly(!showFavOnly)}
-              className={`text-sm px-4 py-2 rounded-full border transition-all ${
-                showFavOnly
-                  ? 'bg-amber-500 text-black border-amber-500'
-                  : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'
-              }`}
-            >
-              ★ 我的收藏 ({favorites.length})
-            </button>
-          )}
-        </div>
-      </section>
-
-      {/* 每日推荐轮播 */}
-      <section className="max-w-6xl mx-auto mb-12">
-        <div className="bg-zinc-900 border border-zinc-800 rounded-[32px] p-8 md:p-10 relative overflow-hidden">
-          <div className="absolute right-0 top-0 w-64 h-64 bg-white/3 blur-3xl rounded-full pointer-events-none" />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                <span className="text-sm text-zinc-400 font-medium">{dateStr} 每日推荐</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={prevDaily}
-                  className="w-8 h-8 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-500 transition-all"
-                >←</button>
-                <div className="flex gap-1.5">
-                  {dailyPicks.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => { setIsAutoPlaying(false); setDailyIndex(i) }}
-                      className={`h-1.5 rounded-full transition-all ${
-                        i === dailyIndex ? 'w-6 bg-white' : 'w-1.5 bg-zinc-700 hover:bg-zinc-500'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <button
-                  onClick={nextDaily}
-                  className="w-8 h-8 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-500 transition-all"
-                >→</button>
-              </div>
+          <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-tight mb-6">
+            设计师的
+            <span className="text-zinc-400">数字工具箱</span>
+          </h1>
+          <p className="max-w-2xl text-zinc-400 text-lg leading-8">
+            精选 AI 设计、配色、字体、灵感、素材与效率工具。
+            帮你从互联网工具垃圾山里，快速找到真正顺手的那一把。
+          </p>
+          <div className="mt-8 flex gap-4 flex-wrap items-center">
+            <div className="text-sm text-zinc-500">
+              共收录 <span className="text-zinc-300 font-bold">{tools.length}</span> 个工具
             </div>
-
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-3">
-                  {currentPick.url.startsWith('http') && (
-                    <img
-                      src={`https://www.google.com/s2/favicons?domain=${new URL(currentPick.url).hostname}&sz=64`}
-                      alt=""
-                      className="w-10 h-10 rounded-xl"
-                      onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
-                    />
-                  )}
-                  <div>
-                    <div className="text-xs text-zinc-500 mb-0.5">{currentPick.category}</div>
-                    <h2 className="text-3xl md:text-4xl font-black leading-tight">{currentPick.name}</h2>
-                  </div>
-                </div>
-                <p className="text-zinc-400 text-base leading-7 max-w-xl mt-4">{currentPick.tip}</p>
-              </div>
-              <div className="flex gap-3 shrink-0">
-                <button
-                  onClick={() => toggleFavorite(currentPick.name)}
-                  className={`px-5 py-3 rounded-2xl border text-sm font-medium transition-all ${
-                    favorites.includes(currentPick.name)
-                      ? 'bg-amber-500 text-black border-amber-500'
-                      : 'border-zinc-700 text-zinc-300 hover:border-zinc-500'
-                  }`}
-                >
-                  {favorites.includes(currentPick.name) ? '★ 已收藏' : '★ 收藏'}
-                </button>
-                <a
-                  href={currentPick.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="bg-white text-black px-5 py-3 rounded-2xl text-sm font-medium hover:bg-zinc-100 transition-colors"
-                >
-                  立即前往 ↗
-                </a>
-              </div>
-            </div>
-
-            {isAutoPlaying && (
-              <div className="mt-8 h-0.5 bg-zinc-800 rounded-full overflow-hidden">
-                <div
-                  key={dailyIndex}
-                  className="h-full bg-zinc-400 rounded-full"
-                  style={{ animation: 'progress 4s linear forwards' }}
-                />
-              </div>
+            {favorites.length > 0 && (
+              <button
+                onClick={() => setShowFavOnly(!showFavOnly)}
+                className={`text-sm px-4 py-2 rounded-full border transition-all ${
+                  showFavOnly
+                    ? 'bg-amber-500 text-black border-amber-500'
+                    : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'
+                }`}
+              >
+                ★ 我的收藏 ({favorites.length})
+              </button>
             )}
           </div>
-        </div>
-      </section>
+        </section>
 
-      <style>{`@keyframes progress { from { width: 0% } to { width: 100% } }`}</style>
-
-      {/* Search */}
-      <section className="max-w-6xl mx-auto mb-6">
-        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 flex items-center gap-3">
-          <span className="text-zinc-500 text-xl">🔍</span>
-          <input
-            type="text"
-            placeholder="搜索工具名称、分类、描述..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full bg-transparent outline-none text-lg placeholder:text-zinc-500"
-          />
-          {search && (
-            <button onClick={() => setSearch('')} className="text-zinc-500 hover:text-zinc-300 text-sm">清除</button>
-          )}
-        </div>
-      </section>
-
-      {/* Category Filter */}
-      <section className="max-w-6xl mx-auto mb-10">
-        <div className="flex gap-2 flex-wrap">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                activeCategory === cat
-                  ? 'bg-white text-black'
-                  : 'border border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200'
-              }`}
-            >{cat}</button>
-          ))}
-        </div>
-      </section>
-
-      {/* Tools Grid */}
-      <section className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Object.entries(groupedTools).map(([categoryName, categoryTools]) => (
-          <div key={categoryName} className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-zinc-600 transition-colors">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-2xl font-bold">{categoryName}</h2>
-              <span className="text-sm text-zinc-500">{categoryTools.length} 个工具</span>
-            </div>
-            <div className="space-y-3">
-              {categoryTools.map(tool => (
-                <div key={tool.name} className="group bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-4 hover:bg-zinc-900 hover:border-zinc-700 transition-all">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3 flex-1 min-w-0">
-                      {tool.url.startsWith('http') ? (
-                        <img
-                          src={`https://www.google.com/s2/favicons?domain=${new URL(tool.url).hostname}&sz=32`}
-                          alt=""
-                          className="w-5 h-5 mt-0.5 rounded shrink-0"
-                          onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
-                        />
-                      ) : (
-                        <span className="w-5 h-5 mt-0.5 shrink-0 flex items-center justify-center text-sm">🛠</span>
-                      )}
-                      <div className="min-w-0">
-                        <a href={tool.url} target="_blank" rel="noreferrer"
-                          className="font-medium hover:text-white flex items-center gap-1 group-hover:underline">
-                          {tool.name}
-                          <span className="text-zinc-500 text-xs">↗</span>
-                        </a>
-                        <div className="text-sm text-zinc-500 leading-6 mt-0.5">{tool.desc}</div>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => toggleFavorite(tool.name)}
-                      className={`shrink-0 text-lg transition-all hover:scale-110 ${
-                        favorites.includes(tool.name) ? 'text-amber-400' : 'text-zinc-700 hover:text-zinc-400'
-                      }`}
-                      title={favorites.includes(tool.name) ? '取消收藏' : '收藏'}
-                    >★</button>
-                  </div>
+        {/* 每日推荐轮播 */}
+        <section className="max-w-6xl mx-auto mb-12">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-[32px] p-8 md:p-10 relative overflow-hidden">
+            <div className="absolute right-0 top-0 w-64 h-64 bg-white/3 blur-3xl rounded-full pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                  <span className="text-sm text-zinc-400 font-medium">{dateStr} 每日推荐</span>
                 </div>
-              ))}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={prevDaily}
+                    className="w-8 h-8 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-500 transition-all"
+                  >←</button>
+                  <div className="flex gap-1.5">
+                    {dailyPicks.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => { setIsAutoPlaying(false); setDailyIndex(i) }}
+                        className={`h-1.5 rounded-full transition-all ${
+                          i === dailyIndex ? 'w-6 bg-white' : 'w-1.5 bg-zinc-700 hover:bg-zinc-500'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <button
+                    onClick={nextDaily}
+                    className="w-8 h-8 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-500 transition-all"
+                  >→</button>
+                </div>
+              </div>
+
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    {currentPick.url.startsWith('http') && (
+                      <img
+                        src={`https://www.google.com/s2/favicons?domain=${new URL(currentPick.url).hostname}&sz=64`}
+                        alt=""
+                        className="w-10 h-10 rounded-xl"
+                        onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                      />
+                    )}
+                    <div>
+                      <div className="text-xs text-zinc-500 mb-0.5">{currentPick.category}</div>
+                      <h2 className="text-3xl md:text-4xl font-black leading-tight">{currentPick.name}</h2>
+                    </div>
+                  </div>
+                  <p className="text-zinc-400 text-base leading-7 max-w-xl mt-4">{currentPick.tip}</p>
+                </div>
+                <div className="flex gap-3 shrink-0">
+                  <button
+                    onClick={() => toggleFavorite(currentPick.name)}
+                    className={`px-5 py-3 rounded-2xl border text-sm font-medium transition-all ${
+                      favorites.includes(currentPick.name)
+                        ? 'bg-amber-500 text-black border-amber-500'
+                        : 'border-zinc-700 text-zinc-300 hover:border-zinc-500'
+                    }`}
+                  >
+                    {favorites.includes(currentPick.name) ? '★ 已收藏' : '★ 收藏'}
+                  </button>
+                  <a
+                    href={currentPick.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="bg-white text-black px-5 py-3 rounded-2xl text-sm font-medium hover:bg-zinc-100 transition-colors"
+                  >
+                    立即前往 ↗
+                  </a>
+                </div>
+              </div>
+
+              {isAutoPlaying && (
+                <div className="mt-8 h-0.5 bg-zinc-800 rounded-full overflow-hidden">
+                  <div
+                    key={dailyIndex}
+                    className="h-full bg-zinc-400 rounded-full"
+                    style={{ animation: 'progress 4s linear forwards' }}
+                  />
+                </div>
+              )}
             </div>
           </div>
-        ))}
-      </section>
-
-      {filteredTools.length === 0 && (
-        <section className="max-w-3xl mx-auto mt-16 text-center">
-          <div className="text-4xl mb-4">🔍</div>
-          <div className="text-2xl font-bold mb-4">没有找到相关工具</div>
-          <p className="text-zinc-500 leading-8">试试搜索：AI、字体、配色、UI、图片...</p>
-          <button
-            onClick={() => { setSearch(''); setActiveCategory('全部'); setShowFavOnly(false) }}
-            className="mt-6 border border-zinc-700 px-6 py-3 rounded-2xl text-zinc-300 hover:bg-zinc-900 transition-colors"
-          >清除筛选</button>
         </section>
-      )}
 
-      {/* Footer */}
-      <footer className="max-w-6xl mx-auto mt-16 border-t border-zinc-900 pt-8 flex items-center justify-between flex-wrap gap-4 text-zinc-600 text-sm">
-        <span>Built for designers, creators & midnight deadline survivors.</span>
-        <span>{tools.length} tools · 持续更新</span>
-      </footer>
-    </div>
+        <style>{`@keyframes progress { from { width: 0% } to { width: 100% } }`}</style>
+
+        {/* Search */}
+        <section className="max-w-6xl mx-auto mb-6">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 flex items-center gap-3">
+            <span className="text-zinc-500 text-xl">🔍</span>
+            <input
+              type="text"
+              placeholder="搜索工具名称、分类、描述..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full bg-transparent outline-none text-lg placeholder:text-zinc-500"
+            />
+            {search && (
+              <button onClick={() => setSearch('')} className="text-zinc-500 hover:text-zinc-300 text-sm">清除</button>
+            )}
+          </div>
+        </section>
+
+        {/* Category Filter */}
+        <section className="max-w-6xl mx-auto mb-10">
+          <div className="flex gap-2 flex-wrap">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  activeCategory === cat
+                    ? 'bg-white text-black'
+                    : 'border border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200'
+                }`}
+              >{cat}</button>
+            ))}
+          </div>
+        </section>
+
+        {/* Tools Grid */}
+        <section className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Object.entries(groupedTools).map(([categoryName, categoryTools]) => (
+            <div key={categoryName} className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-zinc-600 transition-colors">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-2xl font-bold">{categoryName}</h2>
+                <span className="text-sm text-zinc-500">{categoryTools.length} 个工具</span>
+              </div>
+              <div className="space-y-3">
+                {categoryTools.map(tool => (
+                  <div key={tool.name} className="group bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-4 hover:bg-zinc-900 hover:border-zinc-700 transition-all">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        {tool.url.startsWith('http') ? (
+                          <img
+                            src={`https://www.google.com/s2/favicons?domain=${new URL(tool.url).hostname}&sz=32`}
+                            alt=""
+                            className="w-5 h-5 mt-0.5 rounded shrink-0"
+                            onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                          />
+                        ) : (
+                          <span className="w-5 h-5 mt-0.5 shrink-0 flex items-center justify-center text-sm">🛠</span>
+                        )}
+                        <div className="min-w-0">
+                          <a href={tool.url} target="_blank" rel="noreferrer"
+                            className="font-medium hover:text-white flex items-center gap-1 group-hover:underline">
+                            {tool.name}
+                            <span className="text-zinc-500 text-xs">↗</span>
+                          </a>
+                          <div className="text-sm text-zinc-500 leading-6 mt-0.5">{tool.desc}</div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => toggleFavorite(tool.name)}
+                        className={`shrink-0 text-lg transition-all hover:scale-110 ${
+                          favorites.includes(tool.name) ? 'text-amber-400' : 'text-zinc-700 hover:text-zinc-400'
+                        }`}
+                        title={favorites.includes(tool.name) ? '取消收藏' : '收藏'}
+                      >★</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </section>
+
+        {filteredTools.length === 0 && (
+          <section className="max-w-3xl mx-auto mt-16 text-center">
+            <div className="text-4xl mb-4">🔍</div>
+            <div className="text-2xl font-bold mb-4">没有找到相关工具</div>
+            <p className="text-zinc-500 leading-8">试试搜索：AI、字体、配色、UI、图片...</p>
+            <button
+              onClick={() => { setSearch(''); setActiveCategory('全部'); setShowFavOnly(false) }}
+              className="mt-6 border border-zinc-700 px-6 py-3 rounded-2xl text-zinc-300 hover:bg-zinc-900 transition-colors"
+            >清除筛选</button>
+          </section>
+        )}
+
+        {/* Footer */}
+        <footer className="max-w-6xl mx-auto mt-16 border-t border-zinc-900 pt-8 flex items-center justify-between flex-wrap gap-4 text-zinc-600 text-sm">
+          <span>Built for designers, creators & midnight deadline survivors.</span>
+          <span>{tools.length} tools · 持续更新 · 由 zky 整理推荐</span>
+        </footer>
+      </div>
+    </>
   )
 }
