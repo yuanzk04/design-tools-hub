@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>图片转 PDF · Design Tools Hub</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #09090b; color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; padding: 40px 24px; }
+  .container { max-width: 860px; margin: 0 auto; }
+
+  .back { display: inline-flex; align-items: center; gap: 6px; color: #71717a; font-size: 14px; text-decoration: none; margin-bottom: 32px; transition: color .2s; }
+  .back:hover { color: #f4f4f5; }
+
+  .header { margin-bottom: 40px; }
+  .badge { display: inline-flex; align-items: center; border: 1px solid #27272a; border-radius: 999px; padding: 4px 12px; font-size: 12px; color: #71717a; margin-bottom: 16px; }
+  h1 { font-size: 40px; font-weight: 900; letter-spacing: -1px; margin-bottom: 10px; }
+  .subtitle { color: #71717a; font-size: 15px; line-height: 1.6; }
+  .privacy { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; color: #52525b; }
+  .privacy-dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; }
+
+  .drop-zone { border: 2px dashed #27272a; border-radius: 24px; padding: 60px 32px; text-align: center; cursor: pointer; transition: all .2s; margin-bottom: 24px; }
+  .drop-zone:hover, .drop-zone.drag-over { border-color: #52525b; background: #18181b; }
+  .drop-icon { font-size: 48px; margin-bottom: 16px; }
+  .drop-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .drop-sub { color: #71717a; font-size: 14px; }
+  .drop-formats { margin-top: 12px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .fmt-tag { background: #18181b; border: 1px solid #27272a; border-radius: 6px; padding: 2px 8px; font-size: 12px; color: #a1a1aa; }
+
+  .settings { background: #18181b; border: 1px solid #27272a; border-radius: 20px; padding: 20px 24px; margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .setting-item label { display: block; font-size: 13px; color: #71717a; margin-bottom: 8px; }
+  select { width: 100%; background: #09090b; border: 1px solid #27272a; border-radius: 10px; padding: 10px 12px; color: #f4f4f5; font-size: 14px; outline: none; cursor: pointer; }
+  select:focus { border-color: #52525b; }
+  .quality-row { display: flex; align-items: center; gap: 10px; }
+  input[type=range] { flex: 1; accent-color: #f4f4f5; cursor: pointer; }
+  .quality-val { font-size: 14px; font-weight: 600; min-width: 36px; text-align: right; }
+
+  .preview-area { margin-bottom: 24px; }
+  .preview-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .preview-title { font-size: 16px; font-weight: 700; }
+  .preview-count { font-size: 13px; color: #71717a; }
+  .clear-btn { background: none; border: 1px solid #27272a; border-radius: 8px; padding: 6px 12px; color: #71717a; font-size: 13px; cursor: pointer; transition: all .2s; }
+  .clear-btn:hover { border-color: #52525b; color: #f4f4f5; }
+
+  .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .image-card { background: #18181b; border: 1px solid #27272a; border-radius: 14px; overflow: hidden; position: relative; group; }
+  .image-card img { width: 100%; height: 110px; object-fit: cover; display: block; }
+  .image-card .img-info { padding: 8px 10px; }
+  .img-name { font-size: 12px; color: #a1a1aa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .img-size { font-size: 11px; color: #52525b; margin-top: 2px; }
+  .img-remove { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; background: rgba(0,0,0,.7); border: none; border-radius: 50%; color: #f4f4f5; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s; }
+  .img-remove:hover { background: #ef4444; }
+  .img-order { position: absolute; top: 6px; left: 6px; width: 22px; height: 22px; background: rgba(0,0,0,.7); border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; color: #f4f4f5; }
+
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-add { flex: 1; min-width: 120px; background: #18181b; border: 1px solid #27272a; border-radius: 14px; padding: 14px; color: #a1a1aa; font-size: 15px; cursor: pointer; transition: all .2s; }
+  .btn-add:hover { border-color: #52525b; color: #f4f4f5; }
+  .btn-convert { flex: 2; min-width: 180px; background: #f4f4f5; border: none; border-radius: 14px; padding: 14px 24px; color: #09090b; font-size: 15px; font-weight: 700; cursor: pointer; transition: all .2s; }
+  .btn-convert:hover { background: #e4e4e7; transform: scale(1.01); }
+  .btn-convert:disabled { background: #27272a; color: #52525b; cursor: not-allowed; transform: none; }
+
+  .progress-bar { background: #18181b; border-radius: 999px; height: 4px; margin-top: 16px; overflow: hidden; display: none; }
+  .progress-fill { height: 100%; background: #f4f4f5; border-radius: 999px; transition: width .3s; width: 0%; }
+
+  .toast { position: fixed; bottom: 32px; right: 32px; background: #18181b; border: 1px solid #27272a; border-radius: 14px; padding: 14px 20px; font-size: 14px; display: none; align-items: center; gap: 10px; z-index: 99; }
+  .toast.show { display: flex; }
+  .toast-icon { font-size: 18px; }
+
+  .empty-state { text-align: center; padding: 32px; color: #52525b; font-size: 14px; }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 28px; }
+    .settings { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <a class="back" href="/">← 返回工具箱</a>
+
+  <div class="header">
+    <div class="badge">🛠 在线工具</div>
+    <h1>图片转 PDF</h1>
+    <p class="subtitle">支持 JPG、PNG、WebP、GIF，多张图片合并成一个 PDF，可调页面尺寸与图片质量。</p>
+    <div class="privacy"><div class="privacy-dot"></div>完全本地处理，图片不上传任何服务器，隐私安全</div>
+  </div>
+
+  <div class="drop-zone" id="dropZone">
+    <div class="drop-icon">🖼</div>
+    <div class="drop-title">拖拽图片到这里</div>
+    <div class="drop-sub">或点击选择文件</div>
+    <div class="drop-formats">
+      <span class="fmt-tag">JPG</span>
+      <span class="fmt-tag">PNG</span>
+      <span class="fmt-tag">WebP</span>
+      <span class="fmt-tag">GIF</span>
+      <span class="fmt-tag">BMP</span>
+    </div>
+  </div>
+
+  <input type="file" id="fileInput" multiple accept="image/*" style="display:none" />
+
+  <div class="settings">
+    <div class="setting-item">
+      <label>页面尺寸</label>
+      <select id="pageSize">
+        <option value="a4">A4（推荐）</option>
+        <option value="a3">A3</option>
+        <option value="letter">Letter（美国信纸）</option>
+        <option value="fit">适应图片大小</option>
+      </select>
+    </div>
+    <div class="setting-item">
+      <label>页面方向</label>
+      <select id="orientation">
+        <option value="auto">自动（跟随图片）</option>
+        <option value="portrait">竖向</option>
+        <option value="landscape">横向</option>
+      </select>
+    </div>
+    <div class="setting-item">
+      <label>图片质量</label>
+      <div class="quality-row">
+        <input type="range" id="quality" min="50" max="100" value="90" step="1" />
+        <span class="quality-val" id="qualityVal">90%</span>
+      </div>
+    </div>
+    <div class="setting-item">
+      <label>页面边距</label>
+      <select id="margin">
+        <option value="0">无边距</option>
+        <option value="10" selected>小边距（10mm）</option>
+        <option value="20">标准边距（20mm）</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="preview-area" id="previewArea" style="display:none">
+    <div class="preview-header">
+      <div class="preview-title">已选图片</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="preview-count" id="previewCount">0 张</span>
+        <button class="clear-btn" id="clearBtn">清除全部</button>
+      </div>
+    </div>
+    <div class="image-grid" id="imageGrid"></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-add" id="addMoreBtn">+ 继续添加图片</button>
+    <button class="btn-convert" id="convertBtn" disabled>生成 PDF ↓</button>
+  </div>
+
+  <div class="progress-bar" id="progressBar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✅</span>
+  <span id="toastMsg">PDF 下载成功！</span>
+</div>
+
+<script>
+const { jsPDF } = window.jspdf;
+let images = [];
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const imageGrid = document.getElementById('imageGrid');
+const previewArea = document.getElementById('previewArea');
+const previewCount = document.getElementById('previewCount');
+const convertBtn = document.getElementById('convertBtn');
+const progressBar = document.getElementById('progressBar');
+const progressFill = document.getElementById('progressFill');
+const qualitySlider = document.getElementById('quality');
+const qualityVal = document.getElementById('qualityVal');
+
+qualitySlider.addEventListener('input', () => {
+  qualityVal.textContent = qualitySlider.value + '%';
+});
+
+dropZone.addEventListener('click', () => fileInput.click());
+document.getElementById('addMoreBtn').addEventListener('click', () => fileInput.click());
+document.getElementById('clearBtn').addEventListener('click', clearAll);
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  handleFiles(e.dataTransfer.files);
+});
+
+fileInput.addEventListener('change', e => handleFiles(e.target.files));
+
+function handleFiles(files) {
+  const validTypes = ['image/jpeg','image/png','image/webp','image/gif','image/bmp'];
+  const arr = Array.from(files).filter(f => validTypes.includes(f.type));
+  if (!arr.length) return showToast('请选择有效的图片文件', '⚠️');
+  arr.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      images.push({ name: file.name, size: file.size, dataUrl: e.target.result });
+      renderGrid();
+    };
+    reader.readAsDataURL(file);
+  });
+  fileInput.value = '';
+}
+
+function renderGrid() {
+  imageGrid.innerHTML = '';
+  images.forEach((img, i) => {
+    const card = document.createElement('div');
+    card.className = 'image-card';
+    card.innerHTML = `
+      <div class="img-order">${i + 1}</div>
+      <img src="${img.dataUrl}" alt="${img.name}" />
+      <button class="img-remove" onclick="removeImage(${i})" title="删除">×</button>
+      <div class="img-info">
+        <div class="img-name">${img.name}</div>
+        <div class="img-size">${formatSize(img.size)}</div>
+      </div>
+    `;
+    imageGrid.appendChild(card);
+  });
+  previewArea.style.display = images.length ? 'block' : 'none';
+  previewCount.textContent = images.length + ' 张';
+  convertBtn.disabled = images.length === 0;
+  convertBtn.textContent = images.length ? `生成 PDF（${images.length} 张）↓` : '生成 PDF ↓';
+}
+
+function removeImage(i) {
+  images.splice(i, 1);
+  renderGrid();
+}
+
+function clearAll() {
+  images = [];
+  renderGrid();
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+  return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+}
+
+function showToast(msg, icon = '✅') {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIcon').textContent = icon;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function setProgress(pct) {
+  progressBar.style.display = 'block';
+  progressFill.style.width = pct + '%';
+  if (pct >= 100) setTimeout(() => { progressBar.style.display = 'none'; progressFill.style.width = '0%'; }, 800);
+}
+
+convertBtn.addEventListener('click', async () => {
+  if (!images.length) return;
+  convertBtn.disabled = true;
+  convertBtn.textContent = '生成中...';
+  setProgress(10);
+
+  const pageSize = document.getElementById('pageSize').value;
+  const orientPref = document.getElementById('orientation').value;
+  const quality = parseInt(qualitySlider.value) / 100;
+  const marginMM = parseInt(document.getElementById('margin').value);
+
+  await new Promise(r => setTimeout(r, 50));
+
+  try {
+    let pdf = null;
+
+    for (let i = 0; i < images.length; i++) {
+      setProgress(10 + Math.round((i / images.length) * 80));
+      const dataUrl = images[i].dataUrl;
+
+      await new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const imgW = img.naturalWidth;
+          const imgH = img.naturalHeight;
+          const isLandscape = imgW > imgH;
+
+          let orient;
+          if (orientPref === 'auto') orient = isLandscape ? 'landscape' : 'portrait';
+          else orient = orientPref;
+
+          let docW, docH;
+          if (pageSize === 'a4') { docW = 210; docH = 297; }
+          else if (pageSize === 'a3') { docW = 297; docH = 420; }
+          else if (pageSize === 'letter') { docW = 215.9; docH = 279.4; }
+          else { docW = imgW * 0.264583; docH = imgH * 0.264583; }
+
+          if (orient === 'landscape' && pageSize !== 'fit') [docW, docH] = [docH, docW];
+
+          if (!pdf) {
+            pdf = new jsPDF({ orientation: orient, unit: 'mm', format: pageSize === 'fit' ? [docW, docH] : pageSize });
+          } else {
+            pdf.addPage(pageSize === 'fit' ? [docW, docH] : pageSize, orient);
+          }
+
+          const availW = docW - marginMM * 2;
+          const availH = docH - marginMM * 2;
+          const ratio = Math.min(availW / (imgW * 0.264583), availH / (imgH * 0.264583));
+          const drawW = imgW * 0.264583 * ratio;
+          const drawH = imgH * 0.264583 * ratio;
+          const x = marginMM + (availW - drawW) / 2;
+          const y = marginMM + (availH - drawH) / 2;
+
+          const fmt = dataUrl.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+          pdf.addImage(dataUrl, fmt, x, y, drawW, drawH, '', 'FAST');
+          resolve();
+        };
+        img.src = dataUrl;
+      });
+    }
+
+    setProgress(95);
+    const filename = `images-${new Date().toISOString().slice(0,10)}.pdf`;
+    pdf.save(filename);
+    setProgress(100);
+    showToast(`PDF 已下载：${filename}`, '✅');
+  } catch (err) {
+    showToast('生成失败，请重试', '❌');
+    console.error(err);
+  }
+
+  convertBtn.disabled = false;
+  convertBtn.textContent = `生成 PDF（${images.length} 张）↓`;
+});
+</script>
+</body>
+</html>
