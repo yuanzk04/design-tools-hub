@@ -1,0 +1,5 @@
+module.exports = {
+  siteUrl: 'https://design-tools-hub.netlify.app',
+  generateRobotsTxt: true,
+  outDir: './public',
+}
